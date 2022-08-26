@@ -1,4 +1,6 @@
+import 'package:chat_app/widgets/chat/messages_bubble.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 class Messages extends StatelessWidget {
@@ -6,19 +8,39 @@ class Messages extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return StreamBuilder(
-      stream: FirebaseFirestore.instance.collection('chat').snapshots(),
-      builder: (context, AsyncSnapshot<QuerySnapshot> chatsnapshot) {
-        if (chatsnapshot.connectionState == ConnectionState.waiting) {
+    return FutureBuilder(
+      future: Future<User>.value(FirebaseAuth.instance.currentUser),
+      builder: (context, AsyncSnapshot<User> usersnapshot) {
+        if (usersnapshot.connectionState == ConnectionState.waiting) {
           return const Center(
             child: CircularProgressIndicator(),
           );
         }
-        final chatDocs = chatsnapshot.data!.docs;
-        return ListView.builder(
-          shrinkWrap: true,
-          itemCount: chatDocs.length,
-          itemBuilder: (context, index) => Text(chatDocs[index]['text']),
+        final user = FirebaseAuth.instance.currentUser;
+        return StreamBuilder(
+          stream: FirebaseFirestore.instance
+              .collection('chat')
+              .orderBy('createAt', descending: true)
+              .snapshots(),
+          builder: (context, AsyncSnapshot<QuerySnapshot> chatsnapshot) {
+            if (chatsnapshot.connectionState == ConnectionState.waiting) {
+              return const Center(
+                child: CircularProgressIndicator(),
+              );
+            }
+            final chatDocs = chatsnapshot.data!.docs;
+            return ListView.builder(
+              shrinkWrap: true,
+              reverse: true,
+              itemCount: chatDocs.length,
+              itemBuilder: (context, index) => MessageBubble(
+                message: chatDocs[index]['text'],
+                userName: chatDocs[index]['username'],
+                isMe: chatDocs[index]['userId'] == user!.uid,
+                key: ValueKey(chatDocs[index].id),
+              ),
+            );
+          },
         );
       },
     );
