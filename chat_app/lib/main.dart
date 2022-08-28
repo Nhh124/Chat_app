@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
+  //FirebaseMessaging.instance.getToken().then((token) => print("token: $token"));
   runApp(const MyApp());
 }
 

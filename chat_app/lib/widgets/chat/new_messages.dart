@@ -24,7 +24,8 @@ class _NewMessageState extends State<NewMessage> {
       'createAt': Timestamp.now(),
       //createAt để soft tin nhắn theo thứ tự trước sau
       'userId': user!.uid,
-      'username': userData.data()?['username'],
+      'username': userData.data()!['username'],
+      'userImage': userData.data()!['image_url'],
     });
     controller.clear();
   }
