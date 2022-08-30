@@ -32,6 +32,8 @@ class _ChatScreenState extends State<ChatScreen> {
     FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
       print("onMessageOpenedApp: ${message.data}");
     });
+
+    notifications.subscribeToTopic('chat');
   }
 
   @override
